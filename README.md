@@ -26,6 +26,16 @@ Note that you can either use our builtin alpha calculation pipeline (see Choice 
 Builtin pipeline requires Qlib library and local-storaged stock data.
 
 - READ THIS! We need some of the metadata (but not the actual stock price/volume data) given by Qlib, so follow the data preparing process in [Qlib](https://github.com/microsoft/qlib#data-preparation) first.
+    ```bash
+    # 下载数据包
+    wget https://github.com/chenditc/investment_data/releases/latest/download/qlib_bin.tar.gz
+    # 新建文件夹
+    mkdir -p ./qlib_data/cn_data
+    # 解压数据包到指定路径
+    tar -zxvf qlib_bin.tar.gz -C ./qlib_data/cn_data --strip-components=1
+    # 删除压缩包
+    rm -f qlib_bin.tar.gz
+    ```
 - The actual stock data we use are retrieved from [baostock](http://baostock.com/baostock/index.php/%E9%A6%96%E9%A1%B5), due to concerns on the timeliness and truthfulness of the data source used by Qlib.
 - The data can be downloaded by running the script `data_collection/fetch_baostock_data.py`. The newly downloaded data is saved into `~/.qlib/qlib_data/cn_data_baostock_fwdadj` by default. This path can be customized to fit your specific needs, but make sure to use the correct path when loading the data (In `alphagen_qlib/stock_data.py`, function `StockData._init_qlib`, the path should be passed to qlib with `qlib.init(provider_uri=path)`).
 

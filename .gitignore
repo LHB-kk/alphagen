@@ -5,6 +5,7 @@ __pycache__
 playground*.ipynb
 playground*.py
 /data/
+/qlib_data/
 /out/
 logs/
 tb_logs/

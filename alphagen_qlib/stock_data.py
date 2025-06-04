@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import torch
 
+import qlib
+
 
 class FeatureType(IntEnum):
     OPEN = 0
@@ -13,15 +15,22 @@ class FeatureType(IntEnum):
     VOLUME = 4
     VWAP = 5
 
+# 获取当前文件的父目录
+import os
+# 获取当前文件的绝对路径
+current_path = os.path.abspath(__file__)
+# 获取当前文件所在的目录
+current_dir = os.path.dirname(current_path)
+# 获取当前目录的父级目录
+parent_dir = os.path.dirname(current_dir)
 
-_DEFAULT_QLIB_DATA_PATH = "~/.qlib/qlib_data/cn_data"
 _QLIB_INITIALIZED = False
 
 
-def initialize_qlib(qlib_data_path: str = _DEFAULT_QLIB_DATA_PATH) -> None:
-    import qlib
+def initialize_qlib(qlib_data_path: str) -> None:
     from qlib.config import REG_CN
-    qlib.init(provider_uri=qlib_data_path, region=REG_CN)
+    path = os.path.join(parent_dir, qlib_data_path)
+    qlib.init(provider_uri=path, region=REG_CN)
     global _QLIB_INITIALIZED
     _QLIB_INITIALIZED = True
 
@@ -72,8 +81,7 @@ class StockData:
         if cal[end_index] != pd.Timestamp(self._end_time):
             end_index -= 1
         real_end_time = cal[end_index + self.max_future_days]
-        return (QlibDataLoader(config=exprs)  # type: ignore
-                .load(self._instrument, real_start_time, real_end_time))
+        return (QlibDataLoader(config=exprs).load(self._instrument, real_start_time, real_end_time))
 
     def _get_data(self) -> Tuple[torch.Tensor, pd.Index, pd.Index]:
         features = ['$' + f.name.lower() for f in self._features]
@@ -82,7 +90,10 @@ class StockData:
         dates = df.index.levels[0]                                      # type: ignore
         stock_ids = df.columns
         values = df.values
-        values = values.reshape((-1, len(features), values.shape[-1]))  # type: ignore
+        values = values.reshape((-1, len(features), values.shape[-1]))  
+        # 交易日数 x 特征数 x 股票数
+        # 交易日
+        # 股票id
         return torch.tensor(values, dtype=torch.float, device=self.device), dates, stock_ids
 
     def __getitem__(self, slc: slice) -> "StockData":

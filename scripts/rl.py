@@ -1,3 +1,4 @@
+import sys
 import json
 import os
 from typing import Optional, Tuple, List
@@ -5,6 +6,17 @@ from datetime import datetime
 from pathlib import Path
 from openai import OpenAI
 import fire
+# 获取当前文件的绝对路径
+current_path = os.path.abspath(__file__)
+
+# 获取当前文件所在的目录
+current_dir = os.path.dirname(current_path)
+
+# 获取当前目录的父级目录
+parent_dir = os.path.dirname(current_dir)
+
+# 将父级目录添加到sys.path
+sys.path.append(parent_dir)
 
 import numpy as np
 from sb3_contrib.ppo_mask import MaskablePPO
@@ -167,7 +179,7 @@ def run_single_experiment(
     llm_replace_n: int = 3
 ):
     reseed_everything(seed)
-    initialize_qlib("~/.qlib/qlib_data/cn_data")
+    initialize_qlib("qlib_data/cn_data")
 
     llm_replace_n = 0 if not use_llm else llm_replace_n
     print(f"""[Main] Starting training process
